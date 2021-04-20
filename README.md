@@ -1,4 +1,4 @@
-= Citobackup =
+# Citobackup
 
 A program that simplifies backups using the restic tool.
 
@@ -8,7 +8,7 @@ of applications, including docker-compose containers
 Developed and tested on Ubuntu 20.04
 
 
-= Installation =
+# Installation
 
 Install tools
 
@@ -32,24 +32,24 @@ Install dependencies
     pip3 install -r requirements.txt
 
 
-= Configuration =
+# Configuration
 
-== Backup server ==
+## Backup server
 
-=== Create local user and SSH keys for backups ===
+### Create local user and SSH keys for backups
 
     sudo adduser --gecos "Citobackup user" citobackup
     sudo -iu citobackup
     ssh-keygen -N '' -f ~/.ssh/id_rsa
 
 
-=== Install citobackup code ===
+### Install citobackup code
 
     cd /opt
     git clone https://github.com/abundo/citobackup.git
 
 
-=== Install restic binaries ===
+### Install restic binaries
 
 Visit https://github.com/restic/restic/releases
 
@@ -66,7 +66,7 @@ Use the copied link in the wget command.
     ln -s /opt/restic/restic_0.12.0_linux_amd64.bz2 /opt/restic/restic
 
 
-=== Create main configuration files ===
+### Create main configuration files
 
 Create directory, and copy example configation file.
 
@@ -86,7 +86,7 @@ the backups using citobackup if the password file is incorrect.
      chown citobackup:citobackup /etc/citobackup/restic_password.txt
 
 
-== Backup source ==
+## Backup source
 
 This needs to be done for each server that should be backed up.
 
@@ -123,7 +123,7 @@ On remote server, allow restic to read all files
     sudo setcap cap_dac_read_search=+ep /opt/restic/restic
 
 
-== backup server configuration file ==
+## backup server configuration file
 
 Create a configuration file on the backup server, describing the items to 
 be backed up on remote servers. Name of file should be DNS name of remote
@@ -149,12 +149,12 @@ Example /etc/citobackup/dns-signer.example.com.yaml
         - /var/lib/opendnssec
 
 
-== Backup type ==
+## Backup type
 
 There are a number of different backup types. 
 
 
-=== Type files ===
+### Type files
 
 A list of directories. Everything in these directories are backed up
 
@@ -168,9 +168,9 @@ Add under section backups:
         - /data
 
 
-=== Databases ===
+### Databases
 
-==== Type mysql ====
+#### Type mysql
 
 Specify host, database name, username and password. A mysqldump is done and backed up.
 
@@ -185,7 +185,7 @@ Add under section backups:
           database: <mysql database name>
 
 
-==== Postgresql ====
+#### Postgresql
 
 Specify host, database name, username and password. A pgdump is done and backed up.
 
@@ -201,13 +201,13 @@ Add under section backups:
           database: <psql database name>
 
 
-=== Applications ===
+### Applications
 
 To simplify backup, handle less configuration and avoid storing credentials, citobackup
 understands a number of applications
 
 
-==== bitwarden_rs, docker-compose ====
+#### bitwarden_rs, docker-compose
 
 Todo: replace with docker-compose
 
@@ -224,7 +224,7 @@ Add under section backups:
           src: /opt/bitwarden_rs
 
 
-=== OSTicket ===
+### OSTicket
 
 Specify directory to osticket.
 Reads the database credentials from the osticket configuration file
@@ -239,7 +239,7 @@ Add under section backups:
         src: /var/www/html/osticket
 
 
-=== Wordpress ===
+### Wordpress
 
 Source is the wordpress directory.
 
@@ -255,7 +255,7 @@ Add under section backups:
         src: /var/www/sites/example.com
 
 
-=== Docker-compose ===
+### Docker-compose
 
 Source is the directory that contains the docker_compose.yaml file
 
