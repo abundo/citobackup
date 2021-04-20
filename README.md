@@ -18,7 +18,7 @@ Install tools
 Checkout the app
 
     cd /opt
-    git clone 
+    git clone https://github.com/abundo/citobackup.git
 
 
 Activate Python virtual environment
