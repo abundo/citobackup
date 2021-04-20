@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 
-import cito_util
+import citobackup_util
 
 
 class SSH(dict):
@@ -59,7 +59,7 @@ class SSH(dict):
         if os.path.exists(self.persistent_socket):
             print("Removing persistent socket")
             cmd = ["/usr/bin/ssh", "-S", self.persistent_socket, "-O", "exit", self.hostname]
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             return txt
         return ""
 
@@ -78,7 +78,7 @@ class SSH(dict):
         if not found:
             print(f"Creating key for {keyname} with no password")
             cmd = ["ssh-keygen", "-f", priv_key, "-N", '""']
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             print("r =", r)
             print(txt)
 
@@ -177,7 +177,7 @@ class SSH(dict):
                     elif tmp["message_type"] == "summary":
                         res.append(tmp)
                     elif tmp["message_type"] == "status":
-                        if cito_util.write_console:
+                        if citobackup_util.write_console:
                             s = ""
                             if "seconds_elapsed" in tmp:
                                 s += "Seconds elapsed: %i" % tmp["seconds_elapsed"]
@@ -190,12 +190,12 @@ class SSH(dict):
                         print("Unknown message", tmp)
                 else:
                     print("Unknown message", tmp)
-            if cito_util.write_console:
+            if citobackup_util.write_console:
                 print("\r%s\033[K" % "", end="")
             print()
             return res
         else:
-            r, txt = cito_util.run_cmd(c)
+            r, txt = citobackup_util.run_cmd(c)
             return txt
 
     def scp(self, local=None, remote=None, mode=None):
@@ -218,7 +218,7 @@ class SSH(dict):
         tmp += remote
         c += [tmp]
 
-        r, txt = cito_util.run_cmd(c)
+        r, txt = citobackup_util.run_cmd(c)
 
         if mode:
             self.chmod(remote, mode)
@@ -237,7 +237,7 @@ class SSH(dict):
             c += [local]
         if remote:
             c += [remote]
-        r, txt = cito_util.run_cmd(c)
+        r, txt = citobackup_util.run_cmd(c)
         return txt
 
     # ----- convenience functions -----

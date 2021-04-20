@@ -8,8 +8,8 @@ import json
 import yaml
 import traceback
 
-import cito_util
-from cito_ssh import SSH
+import citobackup_util
+from citobackup_ssh import SSH
 
 
 # ----- globals --------------------------------------------------------
@@ -176,7 +176,7 @@ class Restic:
         *-flat.vmdk
 
         """
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
         result.backup_type = "esxi"
@@ -208,7 +208,7 @@ class Restic:
         We don't compress the backup, compression and dedup is not great
         """
         self.print_subheader("Backup files")
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
         result.backup_type = "files"
@@ -240,7 +240,7 @@ class Restic:
         We don't compress the backup, compression makes dedup very hard
         """
         self.print_subheader("Backup mysql database %s" % src["database"])
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
         result.backup_type = "mysql"
@@ -280,7 +280,7 @@ class Restic:
         """
 
         self.print_subheader("Backup osticket site %s" % src)
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
         result.backup_type = "osticket"
@@ -314,7 +314,7 @@ class Restic:
         We don't compress the backup, compression makes dedup very hard
         """
         self.print_subheader("Backup postgresql database %s" % src["database"])
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
         result.backup_type = "psql"
@@ -365,7 +365,7 @@ class Restic:
         Backups all files, and the mysql database, suitable for a full recovery
         """
         self.print_subheader("Backup wordpress site %s" % src)
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.name = "Wordpress site"
         result.subname = name
         result.include_stat = False
@@ -398,7 +398,7 @@ class Restic:
         Copy needed files to server, and run backup
         """
         self.print_header("Running backup on %s" % hostname)
-        backup.results = cito_util.Backup_Results()
+        backup.results = citobackup_util.Backup_Results()
 
         # Initialize SSH to remote server
         port = backup.get("port", None)
@@ -433,7 +433,7 @@ class Restic:
         # copy restic password file
         remote_srv.scp(local="/etc/citobackup/restic_password.txt", remote="/tmp/restic_password.txt", mode="600")
 
-        result = cito_util.Backup_Result()
+        result = citobackup_util.Backup_Result()
         result.hostname = hostname
         result.include_stat = False
 
@@ -491,7 +491,7 @@ class Restic:
             cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
             cmd += ["-p", "/etc/citobackup/restic_password.txt"]
             cmd += ["check", "--no-lock", "--json"]
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             print(txt)
 
     def init(self, hostname=None):
@@ -501,7 +501,7 @@ class Restic:
         cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
         cmd += ["init"]
         cmd += ["-p", "/etc/citobackup/restic_password.txt"]
-        r, txt = cito_util.run_cmd(cmd)
+        r, txt = citobackup_util.run_cmd(cmd)
         print(txt)
 
     def ls(self, hostname=None, id=None):
@@ -511,7 +511,7 @@ class Restic:
         cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
         cmd += ["-p", "/etc/citobackup/restic_password.txt"]
         cmd += ["ls", "-l", id]
-        r, txt = cito_util.run_cmd(cmd)
+        r, txt = citobackup_util.run_cmd(cmd)
         print(txt)
 
     def prune(self, hostname_filter=None, days=365):
@@ -524,7 +524,7 @@ class Restic:
             cmd += ["-p", "/etc/citobackup/restic_password.txt"]
             cmd += ["forget", "--prune", "--keep-daily", str(days), "--json"]
             print(cmd)
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             # print("r", r)
             # print(txt)
 
@@ -550,7 +550,7 @@ class Restic:
             cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
             cmd += ["snapshots"]
             cmd += ["-p", "/etc/citobackup/restic_password.txt"]
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             print(txt)
             print()
 
@@ -563,7 +563,7 @@ class Restic:
             cmd = ["/opt/restic/restic"]
             cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
             cmd += ["-p", "/etc/citobackup/restic_password.txt", "stats"]
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             print(txt)
 
     def unlock(self, hostname_filter=None, days=365):
@@ -574,5 +574,5 @@ class Restic:
             cmd = ["/opt/restic/restic"]
             cmd += ["-r", "%s/%s" % (self.config.default_dest, hostname)]
             cmd += ["-p", "/etc/citobackup/restic_password.txt", "unlock", "--json"]
-            r, txt = cito_util.run_cmd(cmd)
+            r, txt = citobackup_util.run_cmd(cmd)
             print(txt)

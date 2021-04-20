@@ -30,8 +30,8 @@ sys.path.insert(0, "/opt")
 import ablib.utils as abutils
 from ablib.email1 import Email
 
-import cito_util
-from cito_restic import Restic
+import citobackup_util
+from citobackup_restic import Restic
 
 
 class Backups:
@@ -121,7 +121,7 @@ def main():
     if args.cmd == "backup":
         backups = restic.backup(hostname_filter=args.hostname, port=args.port)
 
-        t = cito_util.Table(headers=headers)
+        t = citobackup_util.Table(headers=headers)
 
         # Create table with result
         for hostname, backup in backups.iter(args.hostname):
@@ -140,7 +140,7 @@ def main():
                     t.add_cell(result.dirs_unmodified)
 
                     t.add_cell(result.total_files_processed)
-                    tmp = cito_util.human_readable_size(result.total_bytes_processed)
+                    tmp = citobackup_util.human_readable_size(result.total_bytes_processed)
                     t.add_cell(tmp)
                     t.add_cell(round(result.total_duration, 1))
                     t.add_cell(result.snapshot_id)

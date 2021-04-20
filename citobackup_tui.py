@@ -12,7 +12,7 @@ import argparse
 import curses
 import curses.panel
 
-from cito_restic import Restic
+from citobackup_restic import Restic
 
 
 # ----- Start of configuration -----
