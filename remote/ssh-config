@@ -1,0 +1,9 @@
+# Channel back to backup server
+host 127.0.0.1
+  port 44444
+
+  # We disable compression, restic encrypts data so there is nothing to compress
+  Compression No
+  
+  ServerAliveInterval 60
+  ServerAliveCountMax 30
