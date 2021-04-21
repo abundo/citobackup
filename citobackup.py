@@ -181,12 +181,6 @@ def main():
     elif args.cmd == "prune":
         restic.prune(hostname_filter=args.hostname)
 
-    elif args.cmd == "setup":
-        if args.hostname is None:
-            print("Error: must specify hostname")
-            sys.exit(1)
-        restic.setup_host(hostname=args.hostname, port=args.port)
-
     elif args.cmd == "snapshots":
         restic.snapshots(hostname_filter=args.hostname)
 
