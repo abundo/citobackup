@@ -153,16 +153,20 @@ def main():
         if args.email:
             msg = t.as_html()
             email1 = Email()
+            try:
+                sender = config.notify.email.sender
+            except AttributeError:
+                sender = "noreply@example.com"
             for email in args.email:
                 print(f"Sending email to {email}")
                 email1.send(recipient=email,
-                            sender="noreply@example.com",
+                            sender=sender,
                             subject="citobackup on %s" % platform.node(),
                             msg=msg,
                             )
         else:
             print(t)
- 
+
     elif args.cmd == "check":
         restic.check(hostname_filter=args.hostname)
 
