@@ -112,7 +112,7 @@ def main():
     backups = Backups()
     restic = Restic(config=config, backups=backups)
     headers = [
-        "hostname", "name", "subname", "type",
+        "hostname", "name", "type", "subname",
         "files<br>new", "files<br>changed", "files<br>unmodified",
         "dirs<br>new", "dirs<br>changed", "dirs<br>unmodified",
         "total<br>files", "total<br>bytes", "duration", "snapshot ID",
@@ -128,9 +128,9 @@ def main():
             for ix, result in enumerate(backup.results):
                 t.add_cell(result.hostname)
                 t.add_cell(result.name)
+                t.add_cell(result.backup_type)
                 t.add_cell(result.subname)
                 if result.include_stat:
-                    t.add_cell(result.backup_type)
                     t.add_cell(result.files_new)
                     t.add_cell(result.files_changed)
                     t.add_cell(result.files_unmodified)
@@ -145,7 +145,7 @@ def main():
                     t.add_cell(round(result.total_duration, 1))
                     t.add_cell(result.snapshot_id)
                 else:
-                    for i in range(len(headers) - 3):
+                    for i in range(len(headers) - 4):
                         t.add_cell("")
  
                 t.add_row()
