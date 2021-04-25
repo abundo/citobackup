@@ -92,12 +92,19 @@ class Restic:
         backup database and configuration files
         """
 
+        result = citobackup_util.Backup_Result()
+        result.name = name
+        result.subname = ""
+        result.backup_type = "docker-compose"
+        result.include_stat = False
+        results.add(result)
+
         self.print_subheader(f"Stop {name}")
         cmd = f"cd {src}; docker-compose stop"
         output = remote_srv.ssh(cmd)
         print("output", output)
 
-        self.backup_files(remote_srv, [src], results=results, name=name, subname=src, tags=[name])
+        self.backup_files(remote_srv, [src], results=results, name="", subname=src, tags=[name])
 
         # Get the docker-compose.yaml file
         dc_file = f"{src}/docker-compose.yaml"
@@ -122,7 +129,7 @@ class Restic:
                     # way to handle named volumes
                     # Host now have the volume files in /tmp/citobackup/{volume_name}, backup the files
                     src2 = f"/var/lib/docker/volumes/{volume_name}"
-                    self.backup_files(remote_srv, [src2], results=results, name=name, subname=f"Volume {volume_name}", tags=[name, f"Volume {volume_name}"])
+                    self.backup_files(remote_srv, [src2], results=results, name="", subname=volume_name, tags=[name, f"Volume {volume_name}"], backup_type="Volume")
 
                 else:
                     # Start a container, mounting the volume
@@ -133,7 +140,7 @@ class Restic:
 
                     # Host now have the volume files in /tmp/citobackup/{volume_name}, backup the files
                     src2 = f"/tmp/citobackup/{volume_name}"
-                    self.backup_files(remote_srv, [src2], results=results, name=name, subname=f"Volume {volume_name}", tags=[name, f"Volume {volume_name}"])
+                    self.backup_files(remote_srv, [src2], results=results, name="", subname=f"Volume {volume_name}", tags=[name, f"Volume {volume_name}"])
 
                     # Stop the container
                     # cmd = f"docker attach {container_id} ; exit"
@@ -202,7 +209,7 @@ class Restic:
 
         results.add(result)
 
-    def backup_files(self, remote_srv, src, results=None, name=None, subname=None, tags=None):
+    def backup_files(self, remote_srv, src, results=None, name=None, subname=None, tags=None, backup_type="files"):
         """
         Backup files
         We don't compress the backup, compression and dedup is not great
@@ -211,11 +218,16 @@ class Restic:
         result = citobackup_util.Backup_Result()
         result.name = name
         result.subname = subname
-        result.backup_type = "files"
+        result.backup_type = backup_type
 
-        # Write and copy list of files to backup
-        remote_srv.write_to_file(filename="/tmp/backup_list", data="\n".join(src))
-        print("Backup files", src)
+        print("Backup files")
+        for path in src:
+            print(f"  {path}")
+        print()
+
+        # Write and copy list of files to backup if more than one file
+        if len(src) > 1:
+            remote_srv.write_to_file(filename="/tmp/backup_list", data="\n".join(src))
 
         # Run backup
         cmd = []
@@ -224,8 +236,11 @@ class Restic:
         cmd += ["backup"]
         cmd += ["-p", "/tmp/restic_password.txt"]
         cmd += ["--one-file-system"]
-        cmd += ["--files-from", "/tmp/backup_list"]
         cmd += ["--json"]
+        if len(src) > 1:
+            cmd += ["--files-from", "/tmp/backup_list"]
+        else:
+            cmd += [src[0]]
         if tags:
             for tag in tags:
                 cmd += ["--tag", f'"{tag}"']
@@ -321,7 +336,7 @@ class Restic:
 
         # Write password to .pgpass
         # hostname:port:database:username:password
-        pgpass_file = "/tmp/.pgpass"
+        pgpass_file = "/home/citobackup/.pgpass"
         line = "%s:%s:%s:%s:%s" % (
             src["host"],
             "*",
